@@ -1,0 +1,59 @@
+name: Build & Publish
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "5 13 * * *"  # 09:05 AM ET (13:05 UTC)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate content
+        run: |
+          python scripts/fetch_feeds.py
+          python scripts/write_posts.py
+          python scripts/build_site.py
+          python scripts/make_newsletter.py
+
+      - name: Upload static site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist/
+
+      - name: Trigger Netlify Build Hook
+        env:
+          NETLIFY_BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+        run: |
+          if [ -n "$NETLIFY_BUILD_HOOK_URL" ]; then
+            curl -s -X POST "$NETLIFY_BUILD_HOOK_URL"
+          else
+            echo "Netlify build hook URL not set. Skipping deploy."
+          fi
+
+      - name: Send newsletter via Zapier Webhook
+        env:
+          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
+        run: |
+          if [ -n "$ZAPIER_WEBHOOK_URL" ]; then
+            curl -s -H "Content-Type: application/json" \
+              -d @dist/newsletter.json \
+              "$ZAPIER_WEBHOOK_URL"
+          else
+            echo "Zapier webhook URL not set. Skipping newsletter send."
