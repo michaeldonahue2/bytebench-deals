@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ site_name }}</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; line-height: 1.5; }
+    h1 { margin-bottom: 1rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 0.5rem; }
+    a { text-decoration: none; color: #007acc; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>{{ site_name }}</h1>
+  <ul>
+    {% for entry in entries %}
+    <li><a href="{{ entry.url }}">{{ entry.title }}</a> — {{ entry.source }} {{ entry.published }}</li>
+    {% endfor %}
+  </ul>
+
+  <!-- SKIMLINKS: paste your Skimlinks script here -->
+</body>
+</html>
