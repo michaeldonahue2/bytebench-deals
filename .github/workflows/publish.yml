@@ -5,14 +5,13 @@ on:
   schedule:
     - cron: "5 13 * * *"  # 09:05 AM ET (13:05 UTC)
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +35,7 @@ jobs:
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
-            with:
+        with:
           path: dist
 
       - name: Deploy GitHub Pages
@@ -44,11 +43,10 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send newsletter via Zapier Webhook
+        if: success()
         env:
           ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
         run: |
-          if [ -n "$ZAPIER_WEBHOOK_URL" ]; then
-            curl -X POST -H "Content-Type: application/json" -d "@dist/newsletter.json" "$ZAPIER_WEBHOOK_URL"
-          else
-            echo "Zapier webhook URL not set. Skipping newsletter send."
-          fi
+          curl -X POST -H "Content-Type: application/json" \
+          -d "@dist/newsletter.json" \
+          "$ZAPIER_WEBHOOK_URL"
