@@ -1,0 +1,12 @@
+{
+  "site_name": "ByteBench Deals",
+  "timezone": "America/New_York",
+  "daily_posts": 8,
+  "sources": [
+    {"type": "rss", "name": "Slickdeals Frontpage", "url": "https://slickdeals.net/forums/external.php?type=RSS2"},
+    {"type": "rss", "name": "Razer Deals", "url": "https://www.razer.com/deals.rss"},
+    {"type": "rss", "name": "Dell Deals", "url": "https://deals.dell.com/rss"}
+  ],
+  "exclude_keywords": ["refurbished", "open-box"],
+  "min_discount_pct": 10
+}
